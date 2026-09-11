@@ -1,5 +1,5 @@
 # LeTour Guide
-(remove later, meaningless addition to get my account listed on contributors for the project)
+
 Real-time, channel-based live audio broadcast and listening web app built with Astro + React + WebSockets.
 
 ## Project Purpose
