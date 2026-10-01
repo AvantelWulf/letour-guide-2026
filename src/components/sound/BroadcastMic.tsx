@@ -24,8 +24,16 @@ export default function BroadcastMic() {
       wsRef.current.close();
     }
     if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
+  const AudioContextConstructor =
+    window.AudioContext || (window as any).webkitAudioContext;
+    audioCtxRef.current = new AudioContextConstructor({
+    sampleRate: 48000,
+    latencyHint: "interactive",
+  });
+}
+    // if (!audioCtxRef.current) {
+    //   audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    // }
     const ws = new WebSocket(WS_URL);
     // ensure binary messages are received as ArrayBuffer
     ws.binaryType = 'arraybuffer';

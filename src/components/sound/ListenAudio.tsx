@@ -7,25 +7,34 @@ const WS_URL = `${location.origin}${BASE_URL.replace(
   "client",
   "server"
 )}api/server`; // Update if your server runs elsewhere
+const PLAYBACK_BUFFER_SECONDS = 0.08;
 
 export default function ListenAudio() {
   const [channel, setChannel] = useState("1");
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
+  const nextPlaybackTimeRef = useRef(0);
   const [int_numUsers, setNumUsers] = useState(0);
   // Add a ref to track the silence timeout
   const playingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   //useEffect to set up websocket connection when channel changes
   useEffect(() => {
+    nextPlaybackTimeRef.current = 0;
     // Clean up previous connection
     if (wsRef.current) {
       wsRef.current.close();
     }
     if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
+      // audioCtxRef.current = new (window.AudioContext ||
+      //   (window as any).webkitAudioContext)();
+      const AudioContextConstructor =
+      window.AudioContext || (window as any).webkitAudioContext;
+      audioCtxRef.current = new AudioContextConstructor({
+      sampleRate: 48000,
+      latencyHint: "interactive",
+      });
       // Create a gain node for volume control
       gainNodeRef.current = audioCtxRef.current.createGain();
       gainNodeRef.current.gain.value = 1; // Ensure unmuted on init
@@ -100,35 +109,20 @@ export default function ListenAudio() {
 
           const ctx = audioCtxRef.current!;
           const gainNode = gainNodeRef.current!;
+          if (!sampleRate || samples.length === 0) return;
 
-          if (sampleRate && sampleRate !== ctx.sampleRate) {
-            // Resample using OfflineAudioContext
-            const tmpBuffer = ctx.createBuffer(1, samples.length, sampleRate);
-            tmpBuffer.getChannelData(0).set(samples);
-            const offline = new OfflineAudioContext(
-              1,
-              Math.ceil((samples.length * ctx.sampleRate) / sampleRate),
-              ctx.sampleRate
-            );
-            const source = offline.createBufferSource();
-            source.buffer = tmpBuffer;
-            source.connect(offline.destination);
-            source.start();
-            offline.startRendering().then((rendered) => {
-              const playSource = ctx.createBufferSource();
-              playSource.buffer = rendered;
-              playSource.connect(gainNode);
-              playSource.start();
-            });
-          } else {
-            // No resampling needed
-            const buffer = ctx.createBuffer(1, samples.length, ctx.sampleRate);
-            buffer.getChannelData(0).set(samples);
-            const source = ctx.createBufferSource();
-            source.buffer = buffer;
-            source.connect(gainNode);
-            source.start();
-          }
+          const buffer = ctx.createBuffer(1, samples.length, sampleRate);
+          buffer.getChannelData(0).set(samples);
+          const source = ctx.createBufferSource();
+          source.buffer = buffer;
+          source.connect(gainNode);
+
+          const startTime = Math.max(
+            nextPlaybackTimeRef.current,
+            ctx.currentTime + PLAYBACK_BUFFER_SECONDS
+          );
+          source.start(startTime);
+          nextPlaybackTimeRef.current = startTime + buffer.duration;
         } catch (error) {
           console.error("Error processing binary audio:", error);
         }

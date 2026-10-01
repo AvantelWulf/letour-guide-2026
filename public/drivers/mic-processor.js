@@ -3,7 +3,7 @@ class MicProcessor extends AudioWorkletProcessor {
         super();
         this._buffer = [];
         // this._chunkSize = 8192; // 8192 samples per chunk
-        this._chunkSize = 1024; // 1024 samples per chunk
+        this._chunkSize = 2048; // 2048 samples per chunk
     }
     process(inputs) {
         const input = inputs[0];

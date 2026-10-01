@@ -24,9 +24,14 @@ export default function BroadcastSoundbyte() {
     if (wsRef.current) {
       wsRef.current.close();
     }
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
+if (!audioCtxRef.current) {
+  const AudioContextConstructor =
+    window.AudioContext || (window as any).webkitAudioContext;
+  audioCtxRef.current = new AudioContextConstructor({
+    sampleRate: 48000,
+    latencyHint: "interactive",
+  });
+}
     const ws = new WebSocket(WS_URL);
     // receive binary as ArrayBuffer
     ws.binaryType = 'arraybuffer';
