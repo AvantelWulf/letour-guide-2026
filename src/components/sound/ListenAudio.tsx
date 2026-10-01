@@ -40,6 +40,19 @@ export default function ListenAudio() {
       gainNodeRef.current.gain.value = 1; // Ensure unmuted on init
       gainNodeRef.current.connect(audioCtxRef.current.destination);
     }
+    const resumeAudioContext = () => {
+      const context = audioCtxRef.current;
+      if (context && context.state !== "running") {
+        void context.resume().then(() => {
+          nextPlaybackTimeRef.current = context.currentTime;
+        }).catch((error) => {
+          console.error("Unable to resume audio playback:", error);
+        });
+      }
+    };
+    window.addEventListener("pointerdown", resumeAudioContext);
+    window.addEventListener("keydown", resumeAudioContext);
+
     const ws = new WebSocket(WS_URL);
     // ensure binary messages arrive as ArrayBuffer for easy decoding
     ws.binaryType = "arraybuffer";
@@ -109,7 +122,7 @@ export default function ListenAudio() {
 
           const ctx = audioCtxRef.current!;
           const gainNode = gainNodeRef.current!;
-          if (!sampleRate || samples.length === 0) return;
+          if (ctx.state !== "running" || !sampleRate || samples.length === 0) return;
 
           const buffer = ctx.createBuffer(1, samples.length, sampleRate);
           buffer.getChannelData(0).set(samples);
@@ -173,6 +186,8 @@ export default function ListenAudio() {
       try {
         clearInterval((ws as any)._heartbeatInterval);
       } catch (e) {}
+      window.removeEventListener("pointerdown", resumeAudioContext);
+      window.removeEventListener("keydown", resumeAudioContext);
       ws.close();
       // Cleanup timeout
       if (playingTimeoutRef.current) clearTimeout(playingTimeoutRef.current);
