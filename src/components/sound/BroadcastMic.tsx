@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useScreenWakeLock } from "@/lib/useScreenWakeLock";
 
 // MIC WORKS AS INT16 DATA TYPE
 // This is the base url of the page
@@ -16,6 +17,7 @@ export default function BroadcastMic() {
   const [pendingStartMic, setPendingStartMic] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  useScreenWakeLock(micEnable);
 
   //useEffect to set up websocket connection when channel changes
   useEffect(() => {

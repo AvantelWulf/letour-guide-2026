@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useScreenWakeLock } from "@/lib/useScreenWakeLock";
 
 // This is the base url of the page
 const BASE_URL = import.meta.env.BASE_URL || "/";
@@ -11,6 +12,7 @@ const PLAYBACK_BUFFER_SECONDS = 0.08;
 const MAX_QUEUED_AUDIO_SECONDS = 0.5;
 
 export default function ListenAudio() {
+  useScreenWakeLock(true);
   const [channel, setChannel] = useState("1");
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
