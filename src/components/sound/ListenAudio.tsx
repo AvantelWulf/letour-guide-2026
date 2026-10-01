@@ -8,6 +8,7 @@ const WS_URL = `${location.origin}${BASE_URL.replace(
   "server"
 )}api/server`; // Update if your server runs elsewhere
 const PLAYBACK_BUFFER_SECONDS = 0.08;
+const MAX_QUEUED_AUDIO_SECONDS = 0.5;
 
 export default function ListenAudio() {
   const [channel, setChannel] = useState("1");
@@ -15,12 +16,17 @@ export default function ListenAudio() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
   const nextPlaybackTimeRef = useRef(0);
+  const scheduledSourcesRef = useRef(new Set<AudioBufferSourceNode>());
   const [int_numUsers, setNumUsers] = useState(0);
   // Add a ref to track the silence timeout
   const playingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   //useEffect to set up websocket connection when channel changes
   useEffect(() => {
+    for (const source of scheduledSourcesRef.current) {
+      source.stop();
+    }
+    scheduledSourcesRef.current.clear();
     nextPlaybackTimeRef.current = 0;
     // Clean up previous connection
     if (wsRef.current) {
@@ -124,17 +130,30 @@ export default function ListenAudio() {
           const gainNode = gainNodeRef.current!;
           if (ctx.state !== "running" || !sampleRate || samples.length === 0) return;
 
+          if (
+            nextPlaybackTimeRef.current >
+            ctx.currentTime + MAX_QUEUED_AUDIO_SECONDS
+          ) {
+            for (const queuedSource of scheduledSourcesRef.current) {
+              queuedSource.stop();
+            }
+            scheduledSourcesRef.current.clear();
+            nextPlaybackTimeRef.current = ctx.currentTime + PLAYBACK_BUFFER_SECONDS;
+          }
+
           const buffer = ctx.createBuffer(1, samples.length, sampleRate);
           buffer.getChannelData(0).set(samples);
           const source = ctx.createBufferSource();
           source.buffer = buffer;
           source.connect(gainNode);
+          source.onended = () => scheduledSourcesRef.current.delete(source);
 
           const startTime = Math.max(
             nextPlaybackTimeRef.current,
             ctx.currentTime + PLAYBACK_BUFFER_SECONDS
           );
           source.start(startTime);
+          scheduledSourcesRef.current.add(source);
           nextPlaybackTimeRef.current = startTime + buffer.duration;
         } catch (error) {
           console.error("Error processing binary audio:", error);
