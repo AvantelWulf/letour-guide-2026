@@ -241,34 +241,34 @@ export default function ListenAudio() {
           onChange={(e) => setChannel(e.target.value)}
         >
           <option className="text-base font-bold text-gray-600" value="1">
-            one
+            1
           </option>
           <option className="text-base font-bold text-gray-600" value="2">
-            two
+            2
           </option>
           <option className="text-base font-bold text-gray-600" value="3">
-            three
+            3
           </option>
           <option className="text-base font-bold text-gray-600" value="4">
-            four
+            4
           </option>
           <option className="text-base font-bold text-gray-600" value="5">
-            five
+            5
           </option>
           <option className="text-base font-bold text-gray-600" value="6">
-            six
+            6
           </option>
           <option className="text-base font-bold text-gray-600" value="7">
-            seven
+            7
           </option>
           <option className="text-base font-bold text-gray-600" value="8">
-            eight
+            8
           </option>
           <option className="text-base font-bold text-gray-600" value="9">
-            nine
+            9
           </option>
           <option className="text-base font-bold text-gray-600" value="10">
-            ten
+            10
           </option>
         </select>
       </div>

@@ -12,12 +12,7 @@ const {
 
 // Default navigation items
 const defaultNavigationItems = [
-	{ label: "Home", href: "/" },
-	{
-		label: "Google",
-		href: "https://google.com",
-		external: true,
-	},
+	{ label: "Homepage", href: "/" },
 ];
 
 //if the component does not have navigation items, use the default
@@ -33,7 +28,7 @@ const base = import.meta.env.BASE_URL || "/";
 		<link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
 		<title>{title}</title>
 	</head>
-	<body class="bg-gray-500 min-h-screen">
+	<body class="bg-blue-950 min-h-screen">
 		{showNavigation && <Navigation items={navItems} />}
 		<slot />
 	</body>
