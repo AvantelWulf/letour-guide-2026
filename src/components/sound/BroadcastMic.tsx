@@ -48,6 +48,11 @@ export default function BroadcastMic() {
     ws.onmessage = (msg) => {
       try {
         const parsed = JSON.parse(msg.data);
+        if (parsed.type === "num_users") {
+          window.dispatchEvent(
+            new CustomEvent("broadcast:num-users", { detail: parsed.count })
+          );
+        }
         if (parsed.type === 'lock_granted' && parsed.channel === channel) {
           setHasLock(true);
           if (pendingStartMic) {
@@ -162,16 +167,16 @@ export default function BroadcastMic() {
           value={channel}
           onChange={e => setChannel(e.target.value)}
         >
-          <option className="text-base font-bold text-gray-600" value="1">one</option>
-          <option className="text-base font-bold text-gray-600" value="2">two</option>
-          <option className="text-base font-bold text-gray-600" value="3">three</option>
-          <option className="text-base font-bold text-gray-600" value="4">four</option>
-          <option className="text-base font-bold text-gray-600" value="5">five</option> 
-          <option className="text-base font-bold text-gray-600" value="6">six</option>
-          <option className="text-base font-bold text-gray-600" value="7">seven</option>
-          <option className="text-base font-bold text-gray-600" value="8">eight</option>
-          <option className="text-base font-bold text-gray-600" value="9">nine</option>
-          <option className="text-base font-bold text-gray-600" value="10">ten</option>
+          <option className="text-base font-bold text-gray-600" value="1">1</option>
+          <option className="text-base font-bold text-gray-600" value="2">2</option>
+          <option className="text-base font-bold text-gray-600" value="3">3</option>
+          <option className="text-base font-bold text-gray-600" value="4">4</option>
+          <option className="text-base font-bold text-gray-600" value="5">5</option> 
+          <option className="text-base font-bold text-gray-600" value="6">6</option>
+          <option className="text-base font-bold text-gray-600" value="7">7</option>
+          <option className="text-base font-bold text-gray-600" value="8">8</option>
+          <option className="text-base font-bold text-gray-600" value="9">9</option>
+          <option className="text-base font-bold text-gray-600" value="10">10</option>
         </select>
       </div>
       <div className="">
