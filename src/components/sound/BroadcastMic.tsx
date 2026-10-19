@@ -22,7 +22,7 @@ export default function BroadcastMic() {
 
   //useEffect to set up websocket connection when channel changes
   useEffect(() => {
-    setNumUsers(0);
+    // setNumUsers(0);
     // Clean up previous connection and set up new one when channel is changed
     if (wsRef.current) {
       wsRef.current.close();
@@ -181,7 +181,7 @@ export default function BroadcastMic() {
       </div>
       <div className="text-center">
         <h1 className="mt-1 text-3xl font-bold text-gray-200">
-          Connected users: {numUsers}
+          Connected users: {numUsers-1}
         </h1>
       </div>
       <div className="">
