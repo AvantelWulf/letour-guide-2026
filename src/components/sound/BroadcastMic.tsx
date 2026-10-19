@@ -11,6 +11,7 @@ const WS_URL = `${location.origin}${BASE_URL.replace('client', 'server')}api/ser
 
 export default function BroadcastMic() {
   const [channel, setChannel] = useState("1");
+  const [numUsers, setNumUsers] = useState(0);
   const [microphoneStream, setMicrophoneStream] = useState<MediaStream | null>(null);
   const [micEnable, setMicEnable] = useState(false);
   const [hasLock, setHasLock] = useState(false);
@@ -21,6 +22,7 @@ export default function BroadcastMic() {
 
   //useEffect to set up websocket connection when channel changes
   useEffect(() => {
+    setNumUsers(0);
     // Clean up previous connection and set up new one when channel is changed
     if (wsRef.current) {
       wsRef.current.close();
@@ -48,10 +50,8 @@ export default function BroadcastMic() {
     ws.onmessage = (msg) => {
       try {
         const parsed = JSON.parse(msg.data);
-        if (parsed.type === "num_users") {
-          window.dispatchEvent(
-            new CustomEvent("broadcast:num-users", { detail: parsed.count })
-          );
+        if (parsed.type === "num_users" && typeof parsed.count === "number") {
+          setNumUsers(parsed.count);
         }
         if (parsed.type === 'lock_granted' && parsed.channel === channel) {
           setHasLock(true);
@@ -178,6 +178,11 @@ export default function BroadcastMic() {
           <option className="text-base font-bold text-gray-600" value="9">9</option>
           <option className="text-base font-bold text-gray-600" value="10">10</option>
         </select>
+      </div>
+      <div className="text-center">
+        <h1 className="mt-1 text-3xl font-bold text-gray-200">
+          Connected users: {Math.max(numUsers - 1, 0)}
+        </h1>
       </div>
       <div className="">
         <Button

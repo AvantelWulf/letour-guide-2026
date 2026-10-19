@@ -23,11 +23,6 @@ const baseURL = import.meta.env.BASE_URL;
 			<Button variant="letu" className="mt-3 mb-3 text-[28px] font-bold w-full max-w-[500px] h-14 px-6 py-2">Go Home</Button>
 		</a>
 		
-		<!-- Display number of connected users here in place of the # symbol: -->
-		<h1 class="mt-2 text-3xl font-bold text-gray-200 mb-6">
-			Connected users: <span id="connected-users-count">0</span>
-		</h1>
-
 		<div class="pb-6 relative flex justify-center"> <!-- object-cover makes the image dynamically crop -->
 			<img src=`images/LeTour Guide QR Code (Yellow).png` 
 				class="h-[300px] object-cover" 
@@ -49,13 +44,3 @@ const baseURL = import.meta.env.BASE_URL;
 		</div>
 	</div>
 </Layout>
-
-<script>
-	const countElement = document.getElementById("connected-users-count");
-
-	window.addEventListener("broadcast:num-users", (event) => {
-		if (countElement) {
-			countElement.textContent = String((event as CustomEvent<number>).detail);
-		}
-	});
-</script>
