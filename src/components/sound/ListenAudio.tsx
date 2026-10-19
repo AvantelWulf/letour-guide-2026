@@ -231,7 +231,7 @@ export default function ListenAudio() {
           htmlFor="channel"
           className="text-3xl font-bold text-gray-200 mb-6"
         >
-          Listen to:{" "}
+          Connected Channel:{" "}
         </label>
         <select
           id="channel"
@@ -275,7 +275,7 @@ export default function ListenAudio() {
       
       <div className="text-center">
         <h1 className="mt-1 text-3xl font-bold text-gray-200">
-          Connected users: {int_numUsers}
+          Connected Listeners: {Math.max(int_numUsers - 1, 0)}  
         </h1>
       </div>
     </div>
