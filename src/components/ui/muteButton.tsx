@@ -47,7 +47,7 @@ export default function MuteButton() {
     >
       <span className="flex items-center justify-center gap-3">
         <Icon className="size-8" aria-hidden />
-        {muted ? "Undeafen" : "Deafen"}
+        {muted ? "Unmute Speaker" : "Mute Speaker"}
       </span>
     </Button>
   );
