@@ -25,7 +25,7 @@ const baseURL = import.meta.env.BASE_URL;
 		
 		<!-- Display number of connected users here in place of the # symbol: -->
 		<h1 class="mt-2 text-3xl font-bold text-gray-200 mb-6">
-			Connected users: #
+			Connected users: <span id="connected-users-count">0</span>
 		</h1>
 
 		<div class="pb-6 relative flex justify-center"> <!-- object-cover makes the image dynamically crop -->
@@ -49,3 +49,13 @@ const baseURL = import.meta.env.BASE_URL;
 		</div>
 	</div>
 </Layout>
+
+<script>
+	const countElement = document.getElementById("connected-users-count");
+
+	window.addEventListener("broadcast:num-users", (event) => {
+		if (countElement) {
+			countElement.textContent = String((event as CustomEvent<number>).detail);
+		}
+	});
+</script>

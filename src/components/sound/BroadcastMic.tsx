@@ -48,6 +48,11 @@ export default function BroadcastMic() {
     ws.onmessage = (msg) => {
       try {
         const parsed = JSON.parse(msg.data);
+        if (parsed.type === "num_users") {
+          window.dispatchEvent(
+            new CustomEvent("broadcast:num-users", { detail: parsed.count })
+          );
+        }
         if (parsed.type === 'lock_granted' && parsed.channel === channel) {
           setHasLock(true);
           if (pendingStartMic) {
