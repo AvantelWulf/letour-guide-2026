@@ -181,7 +181,7 @@ export default function BroadcastMic() {
       </div>
       <div className="text-center">
         <h1 className="mt-1 text-3xl font-bold text-gray-200">
-          Connected users: {Math.max(numUsers - 1, 0)}
+          Connected users: {numUsers}
         </h1>
       </div>
       <div className="">
