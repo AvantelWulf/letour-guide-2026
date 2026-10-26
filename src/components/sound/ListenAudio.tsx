@@ -273,8 +273,8 @@ export default function ListenAudio() {
         </select>
       </div>
       
-      <div className="flex">
-        <h1 className="mt-1 text-3xl font-bold text-gray-200">
+      <div className="mb-4">
+        <h1 className="mt-1 text-3xl font-bold text-gray-200 mb-6">
           Connected Listeners: {Math.max(int_numUsers - 1, 0)}  
         </h1>
       </div>
