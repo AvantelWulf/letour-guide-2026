@@ -229,7 +229,7 @@ export default function ListenAudio() {
       <div className="mb-4">
         <label
           htmlFor="channel"
-          className="text-3xl font-bold text-gray-200 mb-6"
+          className="mr-2 text-3xl font-bold text-gray-200"
         >
           Connected Channel:{" "}
         </label>
@@ -240,40 +240,20 @@ export default function ListenAudio() {
           value={channel}
           onChange={(e) => setChannel(e.target.value)}
         >
-          <option className="text-base font-bold text-gray-600" value="1">
-            1
-          </option>
-          <option className="text-base font-bold text-gray-600" value="2">
-            2
-          </option>
-          <option className="text-base font-bold text-gray-600" value="3">
-            3
-          </option>
-          <option className="text-base font-bold text-gray-600" value="4">
-            4
-          </option>
-          <option className="text-base font-bold text-gray-600" value="5">
-            5
-          </option>
-          <option className="text-base font-bold text-gray-600" value="6">
-            6
-          </option>
-          <option className="text-base font-bold text-gray-600" value="7">
-            7
-          </option>
-          <option className="text-base font-bold text-gray-600" value="8">
-            8
-          </option>
-          <option className="text-base font-bold text-gray-600" value="9">
-            9
-          </option>
-          <option className="text-base font-bold text-gray-600" value="10">
-            10
-          </option>
+          <option className="text-base font-bold text-gray-600" value="1">1</option>
+          <option className="text-base font-bold text-gray-600" value="2">2</option>
+          <option className="text-base font-bold text-gray-600" value="3">3</option>
+          <option className="text-base font-bold text-gray-600" value="4">4</option>
+          <option className="text-base font-bold text-gray-600" value="5">5</option>
+          <option className="text-base font-bold text-gray-600" value="6">6</option>
+          <option className="text-base font-bold text-gray-600" value="7">7</option>
+          <option className="text-base font-bold text-gray-600" value="8">8</option>
+          <option className="text-base font-bold text-gray-600" value="9">9</option>
+          <option className="text-base font-bold text-gray-600" value="10">10</option>
         </select>
       </div>
       
-      <div className="mb-4">
+      <div className="text-center">
         <h1 className="mt-1 text-3xl font-bold text-gray-200 mb-6">
           Connected Listeners: {Math.max(int_numUsers - 1, 0)}  
         </h1>
