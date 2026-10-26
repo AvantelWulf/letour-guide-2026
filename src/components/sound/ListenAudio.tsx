@@ -229,8 +229,7 @@ export default function ListenAudio() {
       <div className="mb-4">
         <label
           htmlFor="channel"
-          className="mr-2 text-2xl font-bold text-gray-200"
-        >Connected Channel:{" "}</label>
+          className="mr-2 text-2xl font-bold text-gray-200">Connected Channel:</label>
         <select
           id="channel"
           name="channel"
