@@ -229,11 +229,11 @@ export default function ListenAudio() {
       <div className="text-center">
         <label
           htmlFor="channel"
-          className="text-center mr-2 text-3xl font-bold text-gray-200">Connected Channel:</label>
+          className="text-center mr-1 text-3xl font-bold text-gray-200">Connected Channel:</label>
         <select
           id="channel"
           name="channel"
-          className="text-3xl font-bold text-gray-200 mb-6"
+          className="text-center text-3xl font-bold text-gray-200 mb-6"
           value={channel}
           onChange={(e) => setChannel(e.target.value)}
         >
