@@ -226,10 +226,10 @@ export default function ListenAudio() {
 
   return (
     <div>
-      <div className="mb-4">
+      <div className="">
         <label
           htmlFor="channel"
-          className="text-center mt-1 text-3xl font-bold text-gray-200">Connected Channel:</label>
+          className="text-center mr-2 text-3xl font-bold text-gray-200">Tour Group:</label>
         <select
           id="channel"
           name="channel"
