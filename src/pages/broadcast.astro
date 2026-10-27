@@ -22,27 +22,29 @@ export const prerender = false; // Required for server-side checks
 const CORRECT_PASSCODE = "TurcTest"; // Define your passcode
 let isAuthenticated = false;
 let errorMessage = "";
+let triggerClientRedirect = false;
 
 // 1. Handle form submission (When user enters the passcode)
+  // Existing form handling continues here
 if (Astro.request.method === "POST") {
-  console.info("Broadcast POST origin check", {
-    requestOrigin: new URL(Astro.request.url).origin,
-    originHeader: Astro.request.headers.get("origin"),
-    forwardedHost: Astro.request.headers.get("x-forwarded-host"),
-    forwardedProto: Astro.request.headers.get("x-forwarded-proto"),
-  });
-
-//   // Existing form handling continues here
-// if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
     const passcode = data.get("passcode");
 
     if (passcode === CORRECT_PASSCODE) {
-      // Set a session cookie that expires when the browser closes
-      Astro.cookies.set("page_access_token", "granted", { path: Astro.url.pathname });
+       // 1. Drop the host entirely and bind the cookie explicitly to the relative root path
+      Astro.cookies.set("page_access_token", "granted", { 
+        path: "/", // Scopes the cookie to the entire application relative root
+        httpOnly: true,
+        secure: true, // Azure enforces HTTPS by default
+        sameSite: "lax"
+      });
+      
+      // 2. Set flags to render a client-side redirect instead of using Astro.redirect()
       isAuthenticated = true;
-    } else {
+      triggerClientRedirect = true;
+	} 
+	else {
       errorMessage = "Incorrect passcode. Please try again.";
     }
   } catch (error) {
