@@ -73,7 +73,7 @@ if (!isAuthenticated && Astro.cookies.has("page_access_token")) {
   </head>
   <body style="font-family: sans-serif; max-width: 500px; margin: 50px auto; padding: 20px;">
 
-    {isAuthenticated ? (
+    {isAuthenticated && !triggerClientRedirect ? (
       <!-- SUCCESS: Render the actual page content -->
 		<Layout title="LeTour Broadcast" description="LeTour Broadcast">
 			<!-- <div class="grid place-items-center h-screen content-center"> -->
@@ -109,7 +109,7 @@ if (!isAuthenticated && Astro.cookies.has("page_access_token")) {
         <h1>Enter Passcode</h1>
         <p>You must provide the correct passcode to view this page.</p>
         
-        <form method="POST">
+        <form method="POST" action={currentPath}>
           <input 
             type="password" 
             name="passcode" 
