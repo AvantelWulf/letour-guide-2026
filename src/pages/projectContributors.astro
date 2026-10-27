@@ -1,0 +1,48 @@
+---
+import "../styles/global.css";
+import Navigation from "../components/Navigation.astro";
+
+const {
+	title,
+	description,
+	showNavigation = true,
+	navigationItems,
+} = Astro.props;
+const base = import.meta.env.BASE_URL || "/";
+
+// Default navigation items
+const defaultNavigationItems = [
+	{ label: "Homepage", href: "/" },
+	{
+		label: "Letu",
+		href: "https://letu.edu",
+		external: true,
+	},
+];
+
+//if the component does not have navigation items, use the default
+const navItems = navigationItems || defaultNavigationItems;
+---
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeTour Guide Project Contributors</title>
+	<style>
+	body {
+            background-color: #172554; 
+        }
+	h1 {text-align: center; color: white; font-family: Segoe UI;}
+	p {text-align: center; color: white; font-family: Segoe UI;}
+	a {color: white;}
+	div {text-align: center; color: white; font-family: Segoe UI;}
+	</style>
+</head>
+<body>
+    <h1>LeTour Group Project Contributors</h1>
+    <p>Fall 2025 Contributors: <a href="https://www.linkedin.com/in/jaredtcrow/">Jared Crow</a>, <a href="https://www.linkedin.com/in/rutledgedixon/">Rutledge Dixon</a>, and <a href="https://charlesg.appwrite.network/">Charles Gitogo</a></p>
+	<p>Fall 2026 Contributors: <a href="https://www.linkedin.com/in/mason-lassmann/">Mason Lassmann</a> and <a href="https://github.com/AvantelWulf">Daniel Turczynski</a></p>
+	<p>Factulty Sponsor: <a href="https://www.letu.edu/academics/engineering/fac-bio-tixier.html">Professor John Tixier</a></p>
+</body>
+</html>
