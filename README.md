@@ -16,8 +16,19 @@ The system includes a per-channel lock so only one broadcaster can transmit to a
 - Web app is functional for local development.
 - Real-time audio transport is implemented through `GET /api/server` WebSocket upgrades.
 - Locking and inactivity handling are implemented server-side.
-- No authentication/authorization exists yet.
+- The `/broadcast` page is passcode-gated; its WebSocket endpoint does not require the page passcode.
 - Production container/deployment files need reconciliation with the current Astro server entry point (details below).
+
+## Broadcast Page Passcode
+
+The broadcast page verifies its passcode through a same-origin JSON `POST` to `/api/broadcast-auth`. The passcode is sent in the request body rather than the URL. Successful verification sets an HTTP-only, signed session cookie that expires after about one hour.
+
+Configure these server-side environment variables in Azure App Service under **Configuration → Application settings**:
+
+- `SITE_ORIGIN`: the exact public origin, such as `https://your-app.azurewebsites.net` (no trailing slash).
+- `BROADCAST_SESSION_SECRET`: a randomly generated secret used to sign the session cookie.
+
+The current test passcode is temporarily hardcoded in `src/pages/api/broadcast-auth.ts`; replace it before using the page with a real passcode. This page gate only restricts access to the broadcast interface. It does not authenticate direct connections to the WebSocket endpoint.
 
 ## High-Level Architecture
 
@@ -106,7 +117,7 @@ For cs-lab style manual deployment, prior team process was:
 
 ## Known Gaps and Risks
 
-1. Security: no auth for broadcaster access; anyone can attempt to broadcast.
+1. Security: the page passcode does not authorize or block direct broadcaster connections to the WebSocket endpoint.
 2. Audio quality: occasional clipping/glitch artifacts reported.
 3. Monitoring: no logging aggregation, health checks, or alerting.
 4. Testing: no automated test suite for websocket protocol/audio flow.

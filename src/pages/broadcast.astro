@@ -1,172 +1,134 @@
 ---
-//To do:
-//	- Bring this page up to the quality of the listening page.
-//	- Make the "Answer Question" button a dotted line if there are no incoming questions.
-
-//main imports
-import Layout from "../layouts/listenLayout.astro";
+//Main Imports
+import { env } from "node:process";
 import "../styles/global.css";
 import defineConfig from "astro.config.mjs";
-// Component Imports
+//Component Imports
+import Layout from "../layouts/listenLayout.astro";
 import { Button } from "@/components/ui/button";
 import { navigate } from "astro:transitions/client";
 import BroadcastSoundbyte from "@/components/sound/BroadcastSoundbyte";
 import BroadcastMic from "@/components/sound/BroadcastMic";
-//variables
+import {
+	isBroadcastSessionValid,
+	BROADCAST_SESSION_COOKIE,
+	BROADCAST_SESSION_MAX_AGE_SECONDS,
+} from "@/lib/broadcastAuth";
+
 const baseURL = import.meta.env.BASE_URL;
+const sessionSecret = env.BROADCAST_SESSION_SECRET;
 
-
-// src/pages/protected-page.astro
-
-export const prerender = false; // Forces server rendering on Azure
-
-// 1. Server-Side: Handle the API request check via an inline GET fallback or simple endpoint logic
-if (Astro.request.method === "GET") {
-  const url = new URL(Astro.request.url);
-  
-  // Intercept the check if it's hitting our custom verification flag
-  if (url.searchParams.get("action") === "verify") {
-    const code = url.searchParams.get("code");
-    const CORRECT_PASSCODE = "TurcTest"; // Define your passcode here
-
-    if (code === CORRECT_PASSCODE) {
-      // Set the session token globally using absolute paths
-      Astro.cookies.set("page_access_token", "granted", { 
-        path: "/", 
-        httpOnly: false, // Accessible by client layout scripts for reload states
-        secure: true,
-        sameSite: "lax",
-		maxAge: 3630 
-      });
-      return new Response(JSON.stringify({ success: true }), { status: 200 });
-    }
-    return new Response(JSON.stringify({ success: false }), { status: 401 });
-  }
+if (!sessionSecret) {
+	throw new Error("BROADCAST_SESSION_SECRET must be configured on the server.");
 }
-// 2. Server-Side: Evaluate access on page refresh
-const isAuthenticated = Astro.cookies.has("page_access_token");
+
+const sessionToken = Astro.cookies.get(BROADCAST_SESSION_COOKIE)?.value;
+const isAuthenticated = isBroadcastSessionValid(sessionToken, sessionSecret);
 ---
 
-<html>
-  <head>
-    <title>Protected Broadcast</title>
-  </head>
-    {isAuthenticated ? (
-      <!-- SUCCESS STATE -->
-	{isAuthenticated && (
-	<script>
-		// Automatically reload the page after cookie expires
-		setTimeout(() => {
-		window.location.reload();
-		}, 3630 * 1000); 
-	</script>
-	)}	  
-	<Layout title="LeTour Broadcast" description="LeTour Broadcast">
-		<!-- <div class="grid place-items-center h-screen content-center"> -->
-		<div class="container text-center mx-auto px-4">
-			<a href={baseURL} class="underline">
-				<Button variant="letu" className="mt-3 mb-3 text-[28px] font-bold w-full max-w-[500px] h-14 px-6 py-2">Go Home</Button>
-			</a>
-			
-			<div class="pb-6 relative flex justify-center"> <!-- object-cover makes the image dynamically crop -->
-				<img src=`images/LeTour Guide QR Code (Yellow).png` 
-					class="h-[300px] object-cover" 
-					alt="Background" 
+<Layout title="LeTour Broadcast" description="LeTour Broadcast">
+	{isAuthenticated ? (
+		<div>
+			<script define:vars={{ maxAgeMs: BROADCAST_SESSION_MAX_AGE_SECONDS * 1000 }}>
+				setTimeout(() => window.location.reload(), maxAgeMs);
+			</script>
+			<div class="container text-center mx-auto px-4">
+				<a href={baseURL} class="underline">
+					<Button variant="letu" className="mt-3 mb-3 text-[28px] font-bold w-full max-w-[500px] h-14 px-6 py-2">Go Home</Button>
+				</a>
+
+				<div class="pb-6 relative flex justify-center">
+					<img
+						src="images/LeTour Guide QR Code (Yellow).png"
+						class="h-[300px] object-cover"
+						alt="LeTour Guide QR Code"
+					/>
+				</div>
+
+				<div class="mb-4 border-yellow-400 border-10">
+					<BroadcastMic client:only="react" />
+				</div>
+
+				<div class="flex flex-col items-center space-y-4">
+					<Button variant="letu" className="mt-[1vw] text-[28px] font-bold w-r40 h-40 bg-yellow-700 rounded-full px-6 py-2">
+						No Incoming<br />Questions
+					</Button>
+				</div>
+			</div>
+		</div>
+	) : (
+		<div
+			id="auth-prompt"
+			data-auth-endpoint={`${baseURL}api/broadcast-auth`}
+			class="container mx-auto max-w-lg px-4 py-12 text-center"
+		>
+			<h1 class="mb-4 text-3xl font-bold">Enter Passcode</h1>
+			<p class="mb-6">You must provide the correct passcode to view the broadcast page.</p>
+
+			<form id="passcode-form">
+				<input
+					type="password"
+					id="passcode-input"
+					placeholder="Enter passcode..."
+					autocomplete="current-password"
+					required
+					class="mb-4 block w-full rounded px-3 py-2 text-black"
 				/>
-			</div>
-
-			<!-- Broadcast button: -->
-			<div class="mb-4 border-yellow-400 border-10">
-				<BroadcastMic client:only="react" />
-			</div>
-			
-			<!-- Sound effect button: -->
-			<!-- <BroadcastSoundbyte client:only="react"/> -->
-
-			<!-- The answer question button: -->
-			<div class="flex flex-col items-center space-y-4">
-				<Button variant="letu" className="mt-[1vw] text-[28px] font-bold w-r40 h-40 bg-yellow-700 rounded-full px-6 py-2">No Incoming<br>Questions</Button>
-			</div>
+				<button id="submit-btn" type="submit" class="rounded bg-yellow-500 px-4 py-2 font-bold text-black">
+					Access Page
+				</button>
+				<p id="error-msg" role="alert" class="mt-4 hidden text-red-400"></p>
+			</form>
 		</div>
-	</Layout>
-    ) : (
-      <!-- PROMPT STATE -->
-      <div id="auth-prompt">
-        <h1>Enter Passcode</h1>
-        <p>You must provide the correct passcode to view this page.</p>
-        
-        <!-- Standard div wrapper used instead of <form method="POST"> to drop CSRF checks entirely -->
-        <div id="passcode-form">
-          <input 
-            type="password" 
-            id="passcode-input" 
-            placeholder="Enter passcode..." 
-            required 
-            style="padding: 8px; width: 200px; margin-bottom: 10px; display: block;"
-          />
-          <button id="submit-btn" style="padding: 8px 16px; cursor: pointer;">
-            Access Page
-          </button>
-          <p id="error-msg" style="color: red; margin-top: 10px; display: none;"></p>
-        </div>
-      </div>
-    )}
+	)}
 
-    <!-- Client-Side Handler -->
-    <script>
-      const submitBtn = document.getElementById('submit-btn');
-      const input = document.getElementById('passcode-input') as HTMLInputElement;
-      const errorMsg = document.getElementById('error-msg');
+	<script>
+		const prompt = document.getElementById("auth-prompt");
+		const form = document.getElementById("passcode-form");
+		const input = document.getElementById("passcode-input");
+		const submitButton = document.getElementById("submit-btn");
+		const errorMessage = document.getElementById("error-msg");
 
-      if (submitBtn && input && errorMsg) {
-        submitBtn.addEventListener('click', async () => {
-          const value = input.value;
-          
-          // Send a client-side fetch relative to the current browser URL location
-          const response = await fetch(`${window.location.pathname}?action=verify&code=${encodeURIComponent(value)}`);
-          const data = await response.json();
+		if (
+			prompt instanceof HTMLElement &&
+			form instanceof HTMLFormElement &&
+			input instanceof HTMLInputElement &&
+			submitButton instanceof HTMLButtonElement &&
+			errorMessage instanceof HTMLElement
+		) {
+			form.addEventListener("submit", async (event) => {
+				event.preventDefault();
+				errorMessage.textContent = "";
+				errorMessage.classList.add("hidden");
+				submitButton.disabled = true;
 
-          if (data.success) {
-            // Reload the page natively—since the cookie is set, the server will now render the secret view
-            window.location.reload();
-          } else {
-            errorMsg.textContent = "Incorrect passcode. Please try again.";
-            errorMsg.style.display = "block";
-          }
-        });
-      }
-    </script>
+				try {
+					const response = await fetch(prompt.dataset.authEndpoint ?? "", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ code: input.value }),
+						credentials: "same-origin",
+					});
+					const result: { success?: boolean } = await response.json();
 
-  </body>
-</html>
+					if (response.ok && result.success) {
+						window.location.reload();
+						return;
+					}
 
-
-
-{/* <Layout title="LeTour Broadcast" description="LeTour Broadcast">
-	<!-- <div class="grid place-items-center h-screen content-center"> -->
-	<div class="container text-center mx-auto px-4">
-		<a href={baseURL} class="underline">
-			<Button variant="letu" className="mt-3 mb-3 text-[28px] font-bold w-full max-w-[500px] h-14 px-6 py-2">Go Home</Button>
-		</a>
-		
-		<div class="pb-6 relative flex justify-center"> <!-- object-cover makes the image dynamically crop -->
-			<img src=`images/LeTour Guide QR Code (Yellow).png` 
-				class="h-[300px] object-cover" 
-				alt="Background" 
-			/>
-		</div>
-
-		<!-- Broadcast button: -->
-		<div class="mb-4 border-yellow-400 border-10">
-			<BroadcastMic client:only="react" />
-		</div>
-		
-		<!-- Sound effect button: -->
-		<!-- <BroadcastSoundbyte client:only="react"/> -->
-
-		<!-- The answer question button: -->
-		<div class="flex flex-col items-center space-y-4">
-			<Button variant="letu" className="mt-[1vw] text-[28px] font-bold w-r40 h-40 bg-yellow-700 rounded-full px-6 py-2">No Incoming<br>Questions</Button>
-		</div>
-	</div>
-</Layout> */}
+					errorMessage.textContent =
+						response.status === 401
+							? "Incorrect passcode. Please try again."
+							: "Unable to verify the passcode. Please try again.";
+					errorMessage.classList.remove("hidden");
+				} catch (error) {
+					console.error("Broadcast passcode verification failed:", error);
+					errorMessage.textContent = "Unable to verify the passcode. Please try again.";
+					errorMessage.classList.remove("hidden");
+				} finally {
+					submitButton.disabled = false;
+				}
+			});
+		}
+	</script>
+</Layout>
