@@ -58,13 +58,34 @@ if (!isAuthenticated && Astro.cookies.has("page_access_token")) {
 
     {isAuthenticated ? (
       <!-- SUCCESS: Render the actual page content -->
-      <div>
-        <h1>🔒 Secret Dashboard</h1>
-        <p>This content is completely hidden unless the correct passcode is provided.</p>
-        <button onclick="document.cookie='page_access_token=; path='+window.location.pathname+'; expires=Thu, 01 Jan 1970 00:00:00 UTC;'; location.reload();">
-          Log Out
-        </button>
-      </div>
+		<Layout title="LeTour Broadcast" description="LeTour Broadcast">
+			<!-- <div class="grid place-items-center h-screen content-center"> -->
+			<div class="container text-center mx-auto px-4">
+				<a href={baseURL} class="underline">
+					<Button variant="letu" className="mt-3 mb-3 text-[28px] font-bold w-full max-w-[500px] h-14 px-6 py-2">Go Home</Button>
+				</a>
+				
+				<div class="pb-6 relative flex justify-center"> <!-- object-cover makes the image dynamically crop -->
+					<img src=`images/LeTour Guide QR Code (Yellow).png` 
+						class="h-[300px] object-cover" 
+						alt="Background" 
+					/>
+				</div>
+
+				<!-- Broadcast button: -->
+				<div class="mb-4 border-yellow-400 border-10">
+					<BroadcastMic client:only="react" />
+				</div>
+				
+				<!-- Sound effect button: -->
+				<!-- <BroadcastSoundbyte client:only="react"/> -->
+
+				<!-- The answer question button: -->
+				<div class="flex flex-col items-center space-y-4">
+					<Button variant="letu" className="mt-[1vw] text-[28px] font-bold w-r40 h-40 bg-yellow-700 rounded-full px-6 py-2">No Incoming<br>Questions</Button>
+				</div>
+			</div>
+</Layout>
     ) : (
       <!-- PROMPT: Render the passcode entry form -->
       <div>
@@ -93,7 +114,7 @@ if (!isAuthenticated && Astro.cookies.has("page_access_token")) {
 
 
 
-<Layout title="LeTour Broadcast" description="LeTour Broadcast">
+{/* <Layout title="LeTour Broadcast" description="LeTour Broadcast">
 	<!-- <div class="grid place-items-center h-screen content-center"> -->
 	<div class="container text-center mx-auto px-4">
 		<a href={baseURL} class="underline">
@@ -120,4 +141,4 @@ if (!isAuthenticated && Astro.cookies.has("page_access_token")) {
 			<Button variant="letu" className="mt-[1vw] text-[28px] font-bold w-r40 h-40 bg-yellow-700 rounded-full px-6 py-2">No Incoming<br>Questions</Button>
 		</div>
 	</div>
-</Layout>
+</Layout> */}
