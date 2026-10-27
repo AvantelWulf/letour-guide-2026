@@ -15,66 +15,46 @@ import BroadcastMic from "@/components/sound/BroadcastMic";
 //variables
 const baseURL = import.meta.env.BASE_URL;
 
+
 // src/pages/protected-page.astro
 
-export const prerender = false; // Required for server-side checks
+export const prerender = false; // Forces server rendering on Azure
 
-const CORRECT_PASSCODE = "TurcTest"; // Define your passcode
-let isAuthenticated = false;
-let errorMessage = "";
-let triggerClientRedirect = false;
+// 1. Server-Side: Handle the API request check via an inline GET fallback or simple endpoint logic
+if (Astro.request.method === "GET") {
+  const url = new URL(Astro.request.url);
+  
+  // Intercept the check if it's hitting our custom verification flag
+  if (url.searchParams.get("action") === "verify") {
+    const code = url.searchParams.get("code");
+    const CORRECT_PASSCODE = "TurcTest"; // Define your passcode here
 
-// Gather the absolute current path pathname (e.g. "/protected-page")
-const currentPath = Astro.url.pathname;
-
-// 1. Handle form submission (When user enters the passcode)
-  // Existing form handling continues here
-if (Astro.request.method === "POST") {
-  try {
-    const data = await Astro.request.formData();
-    const passcode = data.get("passcode");
-
-    if (passcode === CORRECT_PASSCODE) {
-       // 1. Drop the host entirely and bind the cookie explicitly to the relative root path
+    if (code === CORRECT_PASSCODE) {
+      // Set the session token globally using absolute paths
       Astro.cookies.set("page_access_token", "granted", { 
-        path: "/", // Scopes the cookie to the entire application relative root
-        httpOnly: true,
-        secure: true, // Azure enforces HTTPS by default
+        path: "/", 
+        httpOnly: false, // Accessible by client layout scripts for reload states
+        secure: true,
         sameSite: "lax"
       });
-      
-      // 2. Set flags to render a client-side redirect instead of using Astro.redirect()
-      isAuthenticated = true;
-      triggerClientRedirect = true;
-	} 
-	else {
-      errorMessage = "Incorrect passcode. Please try again.";
+      return new Response(JSON.stringify({ success: true }), { status: 200 });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(error.message);
-    }
+    return new Response(JSON.stringify({ success: false }), { status: 401 });
   }
 }
-
-// 2. Check if user already has a valid session cookie
-if (!isAuthenticated && Astro.cookies.has("page_access_token")) {
-  isAuthenticated = true;
-}
+// 2. Server-Side: Evaluate access on page refresh
+const isAuthenticated = Astro.cookies.has("page_access_token");
 ---
 
 <html>
   <head>
     <title>Protected Page</title>
-	    {triggerClientRedirect && (
-    //   3. If just logged in, force a browser-level refresh to strip the POST payload safely
-      <meta http-equiv="refresh" content={`0;url=${currentPath}`} />
-    )}
   </head>
   <body style="font-family: sans-serif; max-width: 500px; margin: 50px auto; padding: 20px;">
 
-    {isAuthenticated && !triggerClientRedirect ? (
-      <!-- SUCCESS: Render the actual page content -->
+    {isAuthenticated ? (
+      <!-- SUCCESS STATE -->
+      <div id="secret-content">
 		<Layout title="LeTour Broadcast" description="LeTour Broadcast">
 			<!-- <div class="grid place-items-center h-screen content-center"> -->
 			<div class="container text-center mx-auto px-4">
@@ -102,29 +82,55 @@ if (!isAuthenticated && Astro.cookies.has("page_access_token")) {
 					<Button variant="letu" className="mt-[1vw] text-[28px] font-bold w-r40 h-40 bg-yellow-700 rounded-full px-6 py-2">No Incoming<br>Questions</Button>
 				</div>
 			</div>
-</Layout>
+		</Layout>
+      </div>
     ) : (
-      <!-- PROMPT: Render the passcode entry form -->
-      <div>
+      <!-- PROMPT STATE -->
+      <div id="auth-prompt">
         <h1>Enter Passcode</h1>
         <p>You must provide the correct passcode to view this page.</p>
         
-        <form method="POST" action={currentPath}>
+        <!-- Standard div wrapper used instead of <form method="POST"> to drop CSRF checks entirely -->
+        <div id="passcode-form">
           <input 
             type="password" 
-            name="passcode" 
+            id="passcode-input" 
             placeholder="Enter passcode..." 
             required 
-            style="padding: 8px; width: 200px; margin-right: 100%; margin-bottom: 10px;"
+            style="padding: 8px; width: 200px; margin-bottom: 10px; display: block;"
           />
-          <button type="submit" style="padding: 8px 16px; cursor: pointer;">
+          <button id="submit-btn" style="padding: 8px 16px; cursor: pointer;">
             Access Page
           </button>
-        </form>
-
-        {errorMessage && <p style="color: red; margin-top: 10px;">{errorMessage}</p>}
+          <p id="error-msg" style="color: red; margin-top: 10px; display: none;"></p>
+        </div>
       </div>
     )}
+
+    <!-- Client-Side Handler -->
+    <script>
+      const submitBtn = document.getElementById('submit-btn');
+      const input = document.getElementById('passcode-input') as HTMLInputElement;
+      const errorMsg = document.getElementById('error-msg');
+
+      if (submitBtn && input && errorMsg) {
+        submitBtn.addEventListener('click', async () => {
+          const value = input.value;
+          
+          // Send a client-side fetch relative to the current browser URL location
+          const response = await fetch(`${window.location.pathname}?action=verify&code=${encodeURIComponent(value)}`);
+          const data = await response.json();
+
+          if (data.success) {
+            // Reload the page natively—since the cookie is set, the server will now render the secret view
+            window.location.reload();
+          } else {
+            errorMsg.textContent = "Incorrect passcode. Please try again.";
+            errorMsg.style.display = "block";
+          }
+        });
+      }
+    </script>
 
   </body>
 </html>
