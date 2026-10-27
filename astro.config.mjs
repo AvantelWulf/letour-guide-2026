@@ -12,9 +12,6 @@ const base = '/' // make this the directory where all the pages go
 export default defineConfig({
   output: 'server',
   base: base, //where the project is deployed
-  security: {
-    checkOrigin: false //temporary
-  },
   vite: {
     css: {
       postcss: './postcss.config.js',
