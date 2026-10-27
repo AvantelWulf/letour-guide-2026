@@ -35,7 +35,8 @@ if (Astro.request.method === "GET") {
         path: "/", 
         httpOnly: false, // Accessible by client layout scripts for reload states
         secure: true,
-        sameSite: "lax"
+        sameSite: "lax",
+		maxAge: 3630 
       });
       return new Response(JSON.stringify({ success: true }), { status: 200 });
     }
@@ -54,36 +55,42 @@ const isAuthenticated = Astro.cookies.has("page_access_token");
 
     {isAuthenticated ? (
       <!-- SUCCESS STATE -->
-      <div id="secret-content">
-		<Layout title="LeTour Broadcast" description="LeTour Broadcast">
-			<!-- <div class="grid place-items-center h-screen content-center"> -->
-			<div class="container text-center mx-auto px-4">
-				<a href={baseURL} class="underline">
-					<Button variant="letu" className="mt-3 mb-3 text-[28px] font-bold w-full max-w-[500px] h-14 px-6 py-2">Go Home</Button>
-				</a>
-				
-				<div class="pb-6 relative flex justify-center"> <!-- object-cover makes the image dynamically crop -->
-					<img src=`images/LeTour Guide QR Code (Yellow).png` 
-						class="h-[300px] object-cover" 
-						alt="Background" 
-					/>
-				</div>
-
-				<!-- Broadcast button: -->
-				<div class="mb-4 border-yellow-400 border-10">
-					<BroadcastMic client:only="react" />
-				</div>
-				
-				<!-- Sound effect button: -->
-				<!-- <BroadcastSoundbyte client:only="react"/> -->
-
-				<!-- The answer question button: -->
-				<div class="flex flex-col items-center space-y-4">
-					<Button variant="letu" className="mt-[1vw] text-[28px] font-bold w-r40 h-40 bg-yellow-700 rounded-full px-6 py-2">No Incoming<br>Questions</Button>
-				</div>
+	{isAuthenticated && (
+	<script>
+		// Automatically reload the page after cookie expires
+		setTimeout(() => {
+		window.location.reload();
+		}, 3630 * 1000); 
+	</script>
+	)}	  
+	<Layout title="LeTour Broadcast" description="LeTour Broadcast">
+		<!-- <div class="grid place-items-center h-screen content-center"> -->
+		<div class="container text-center mx-auto px-4">
+			<a href={baseURL} class="underline">
+				<Button variant="letu" className="mt-3 mb-3 text-[28px] font-bold w-full max-w-[500px] h-14 px-6 py-2">Go Home</Button>
+			</a>
+			
+			<div class="pb-6 relative flex justify-center"> <!-- object-cover makes the image dynamically crop -->
+				<img src=`images/LeTour Guide QR Code (Yellow).png` 
+					class="h-[300px] object-cover" 
+					alt="Background" 
+				/>
 			</div>
-		</Layout>
-      </div>
+
+			<!-- Broadcast button: -->
+			<div class="mb-4 border-yellow-400 border-10">
+				<BroadcastMic client:only="react" />
+			</div>
+			
+			<!-- Sound effect button: -->
+			<!-- <BroadcastSoundbyte client:only="react"/> -->
+
+			<!-- The answer question button: -->
+			<div class="flex flex-col items-center space-y-4">
+				<Button variant="letu" className="mt-[1vw] text-[28px] font-bold w-r40 h-40 bg-yellow-700 rounded-full px-6 py-2">No Incoming<br>Questions</Button>
+			</div>
+		</div>
+	</Layout>
     ) : (
       <!-- PROMPT STATE -->
       <div id="auth-prompt">
