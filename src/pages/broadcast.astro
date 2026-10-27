@@ -32,8 +32,8 @@ if (Astro.request.method === "POST") {
     forwardedProto: Astro.request.headers.get("x-forwarded-proto"),
   });
 
-  // Existing form handling continues here
-if (Astro.request.method === "POST") {
+//   // Existing form handling continues here
+// if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
     const passcode = data.get("passcode");
