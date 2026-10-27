@@ -1,7 +1,10 @@
 ---
 import "../styles/global.css";
 import Layout from "../layouts/mainLayout.astro";
-import Navigation from "../components/Navigation.astro";
+import defineConfig from "astro.config.mjs"
+// Component Imports
+import { Button } from "@/components/ui/button";
+import { navigate } from "astro:transitions/client";
 
 const {
 	title,
