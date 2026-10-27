@@ -14,7 +14,84 @@ import BroadcastSoundbyte from "@/components/sound/BroadcastSoundbyte";
 import BroadcastMic from "@/components/sound/BroadcastMic";
 //variables
 const baseURL = import.meta.env.BASE_URL;
+
+// src/pages/protected-page.astro
+
+export const prerender = false; // Required for server-side checks
+
+const CORRECT_PASSCODE = "RGApproved"; // Define your passcode
+let isAuthenticated = false;
+let errorMessage = "";
+
+// 1. Handle form submission (When user enters the passcode)
+
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const passcode = data.get("passcode");
+
+    if (passcode === CORRECT_PASSCODE) {
+      // Set a session cookie that expires when the browser closes
+      Astro.cookies.set("page_access_token", "granted", { path: Astro.url.pathname });
+      isAuthenticated = true;
+    } else {
+      errorMessage = "Incorrect passcode. Please try again.";
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+  }
+}
+
+// 2. Check if user already has a valid session cookie
+if (!isAuthenticated && Astro.cookies.has("page_access_token")) {
+  isAuthenticated = true;
+}
 ---
+
+<html>
+  <head>
+    <title>Protected Page</title>
+  </head>
+  <body style="font-family: sans-serif; max-width: 500px; margin: 50px auto; padding: 20px;">
+
+    {isAuthenticated ? (
+      <!-- SUCCESS: Render the actual page content -->
+      <div>
+        <h1>🔒 Secret Dashboard</h1>
+        <p>This content is completely hidden unless the correct passcode is provided.</p>
+        <button onclick="document.cookie='page_access_token=; path='+window.location.pathname+'; expires=Thu, 01 Jan 1970 00:00:00 UTC;'; location.reload();">
+          Log Out
+        </button>
+      </div>
+    ) : (
+      <!-- PROMPT: Render the passcode entry form -->
+      <div>
+        <h1>Enter Passcode</h1>
+        <p>You must provide the correct passcode to view this page.</p>
+        
+        <form method="POST">
+          <input 
+            type="password" 
+            name="passcode" 
+            placeholder="Enter passcode..." 
+            required 
+            style="padding: 8px; width: 200px; margin-right: 100%; margin-bottom: 10px;"
+          />
+          <button type="submit" style="padding: 8px 16px; cursor: pointer;">
+            Access Page
+          </button>
+        </form>
+
+        {errorMessage && <p style="color: red; margin-top: 10px;">{errorMessage}</p>}
+      </div>
+    )}
+
+  </body>
+</html>
+
+
 
 <Layout title="LeTour Broadcast" description="LeTour Broadcast">
 	<!-- <div class="grid place-items-center h-screen content-center"> -->
