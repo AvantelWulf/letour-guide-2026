@@ -24,7 +24,15 @@ let isAuthenticated = false;
 let errorMessage = "";
 
 // 1. Handle form submission (When user enters the passcode)
+if (Astro.request.method === "POST") {
+  console.info("Broadcast POST origin check", {
+    requestOrigin: new URL(Astro.request.url).origin,
+    originHeader: Astro.request.headers.get("origin"),
+    forwardedHost: Astro.request.headers.get("x-forwarded-host"),
+    forwardedProto: Astro.request.headers.get("x-forwarded-proto"),
+  });
 
+  // Existing form handling continues here
 if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
