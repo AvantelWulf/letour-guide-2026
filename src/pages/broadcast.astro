@@ -24,6 +24,9 @@ let isAuthenticated = false;
 let errorMessage = "";
 let triggerClientRedirect = false;
 
+// Gather the absolute current path pathname (e.g. "/protected-page")
+const currentPath = Astro.url.pathname;
+
 // 1. Handle form submission (When user enters the passcode)
   // Existing form handling continues here
 if (Astro.request.method === "POST") {
@@ -63,6 +66,10 @@ if (!isAuthenticated && Astro.cookies.has("page_access_token")) {
 <html>
   <head>
     <title>Protected Page</title>
+	    {triggerClientRedirect && (
+      <!-- 3. If just logged in, force a browser-level refresh to strip the POST payload safely -->
+      <meta http-equiv="refresh" content={`0;url=${currentPath}`} />
+    )}
   </head>
   <body style="font-family: sans-serif; max-width: 500px; margin: 50px auto; padding: 20px;">
 
