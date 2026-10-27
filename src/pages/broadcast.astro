@@ -67,7 +67,7 @@ if (!isAuthenticated && Astro.cookies.has("page_access_token")) {
   <head>
     <title>Protected Page</title>
 	    {triggerClientRedirect && (
-      <!-- 3. If just logged in, force a browser-level refresh to strip the POST payload safely -->
+    //   3. If just logged in, force a browser-level refresh to strip the POST payload safely
       <meta http-equiv="refresh" content={`0;url=${currentPath}`} />
     )}
   </head>
