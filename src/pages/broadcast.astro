@@ -49,10 +49,8 @@ const isAuthenticated = Astro.cookies.has("page_access_token");
 
 <html>
   <head>
-    <title>Protected Page</title>
+    <title>Protected Broadcast</title>
   </head>
-  <body style="font-family: sans-serif; max-width: 500px; margin: 50px auto; padding: 20px;">
-
     {isAuthenticated ? (
       <!-- SUCCESS STATE -->
 	{isAuthenticated && (
