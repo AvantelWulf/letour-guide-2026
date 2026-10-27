@@ -226,7 +226,7 @@ export default function ListenAudio() {
 
   return (
     <div>
-      <div className="">
+      <div className="text-center">
         <label
           htmlFor="channel"
           className="text-center mr-2 text-3xl font-bold text-gray-200">Tour Group:</label>
