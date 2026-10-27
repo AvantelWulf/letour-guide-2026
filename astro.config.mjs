@@ -12,6 +12,14 @@ const base = '/' // make this the directory where all the pages go
 export default defineConfig({
   output: 'server',
   base: base, //where the project is deployed
+  security: {
+  allowedDomains: [
+    {
+      hostname: "letour-guide-app-e4c0ghhkcjbpf7fu.northcentralus-01.azurewebsites.net",
+      protocol: "https",
+    },
+  ],
+},
   vite: {
     css: {
       postcss: './postcss.config.js',
