@@ -179,6 +179,7 @@ export default function BroadcastMic() {
           <option className="text-base font-bold text-gray-600" value="10">10</option>
         </select>
       </div>
+      
       <div className="text-center">
         <h1 className="mt-1 text-3xl font-bold text-gray-200">
           Connected users: {numUsers-1}
@@ -206,6 +207,14 @@ export default function BroadcastMic() {
         </Button>
 
       </div>
+      <div className="pb-6 relative flex justify-center">
+					<img
+						src="images/LeTour Guide QR Code (Yellow).png"
+						className="h-[300px] object-cover"
+						alt="LeTour Guide QR Code"
+					/>
+				</div>
     </div>
+    
   );
 }
