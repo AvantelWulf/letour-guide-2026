@@ -195,7 +195,7 @@ export default function BroadcastMic() {
       <div className="">
         <Button
           className={
-            `mb-4 mt-2 text-[28px] font-bold w-full max-w-[80vw] h-12 px-6 py-2 ${!hasLock ? 'opacity-70 filter grayscale' : ''}`
+            `mb-4 mt-2 text-[28px] font-bold w-full max-w-[500px] h-12 px-6 py-2 ${!hasLock ? 'opacity-70 filter grayscale' : ''}`
           }
           variant="letu"
                 onClick={async () => {
