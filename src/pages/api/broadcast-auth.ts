@@ -4,6 +4,7 @@ import {
 	BROADCAST_SESSION_COOKIE,
 	BROADCAST_SESSION_MAX_AGE_SECONDS,
 	createBroadcastSessionToken,
+	verifyBroadcastPasscode,
 } from "@/lib/broadcastAuth";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
@@ -34,9 +35,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		typeof body === "object" && body !== null && "code" in body
 			? body.code
 			: undefined;
-	const correctPasscode = "TurcTest";
+	const passcodeHash = env.BROADCAST_PASSCODE_HASH;
 
-	if (typeof code !== "string" || code !== correctPasscode) {
+	if (!passcodeHash) {
+		console.error("BROADCAST_PASSCODE_HASH must be configured on the server.");
+		return Response.json({ success: false }, { status: 500 });
+	}
+
+	if (typeof code !== "string" || !(await verifyBroadcastPasscode(code, passcodeHash))) {
 		return Response.json({ success: false }, { status: 401 });
 	}
 
