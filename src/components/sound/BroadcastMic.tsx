@@ -185,6 +185,13 @@ export default function BroadcastMic() {
           Connected users: {numUsers-1}
         </h1>
       </div>
+      <div className="pb-6 relative flex justify-center">
+					<img
+						src="images/LeTour Guide QR Code (Yellow).png"
+						className="h-[300px] object-cover"
+						alt="LeTour Guide QR Code"
+					/>
+				</div>
       <div className="">
         <Button
           className={
@@ -207,13 +214,6 @@ export default function BroadcastMic() {
         </Button>
 
       </div>
-      <div className="pb-6 relative flex justify-center">
-					<img
-						src="images/LeTour Guide QR Code (Yellow).png"
-						className="h-[300px] object-cover"
-						alt="LeTour Guide QR Code"
-					/>
-				</div>
     </div>
     
   );
